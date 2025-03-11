@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaHack Pro - Hackeie Qualquer Instagram</title>
+    <style>
+        body {
+            background-color: #1C2526;
+            color: #00FF41;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        h1 {
+            font-size: 36px;
+            text-transform: uppercase;
+        }
+        .input-section {
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4A4A4A;
+            border: 2px solid #00FF41;
+            color: #00FF41;
+            width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #00FF41;
+            color: #1C2526;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #1C2526;
+            color: #00FF41;
+            border: 2px solid #00FF41;
+        }
+        #loading {
+            display: none;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        #result {
+            display: none;
+            background-color: #4A4A4A;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #00FF41;
+        }
+        #result img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+        }
+        #hack-btn {
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>InstaHack Pro</h1>
+        <p>Hackeie qualquer Instagram por apenas R$ 19,90!</p>
+        <div class="input-section">
+            <input type="text" id="username" placeholder="Digite o @ (ex.: @fulano123)">
+            <button onclick="extractData()">Extrair Dados</button>
+        </div>
+        <div id="loading">Extraindo dados... Aguarde.</div>
+        <div id="result">
+            <img id="profile-pic" src="" alt="Foto do perfil">
+            <p><strong>Nome:</strong> <span id="name"></span></p>
+            <p><strong>Data de Nascimento:</strong> <span id="birthdate"></span></p>
+            <p><strong>Cidade:</strong> <span id="city"></span></p>
+            <p><strong>Bio:</strong> <span id="bio"></span></p>
+        </div>
+        <button id="hack-btn" onclick="goToCheckout()">Hackear Agora</button>
+    </div>
+
+    <script>
+async function extractData() {
+    const username = document.getElementById('username').value.trim().replace('@', '');
+    if (!username) {
+        alert('Por favor, insira um @ válido.');
+        return;
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('hack-btn').style.display = 'none';
+
+    try {
+        const response = await fetch(`/.netlify/functions/extract/${username}`);
+        const extractedData = await response.json();
+
+        if (extractedData.error) {
+            throw new Error(extractedData.error);
+        }
+
+        document.getElementById('profile-pic').src = extractedData.profilePic;
+        document.getElementById('name').textContent = extractedData.name;
+        document.getElementById('birthdate').textContent = extractedData.birthdate;
+        document.getElementById('city').textContent = extractedData.city;
+        document.getElementById('bio').textContent = extractedData.bio;
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('hack-btn').style.display = 'block';
+    } catch (error) {
+        alert('Erro ao extrair dados. Verifique o @ ou tente novamente.');
+        console.error(error);
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+        function goToCheckout() {
+            window.location.href = 'https://seusite.com/checkout'; // Substitua pelo seu link
+        }
+    </script>
+</body>
+</html>
