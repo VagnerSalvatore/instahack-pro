@@ -74,6 +74,10 @@
             margin-top: 20px;
             display: none;
         }
+        #instagram-embed {
+            display: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -84,13 +88,16 @@
             <input type="text" id="username" placeholder="Insira o @ do Instagram">
             <br><button onclick="extractData()" style="margin-top: 20px;">HACKEAR AGORA</button>
         </div>
-        <div id="loading">Extraindo foto... Aguarde.</div>
-        <div id="result">
-            <img id="profile-pic" src="" alt="Foto do perfil">
+        <div id="loading">Carregando perfil... Aguarde.</div>
+        <div id="instagram-embed">
+            <blockquote class="instagram-media" data-instgrm-permalink="" data-instgrm-version="14">
+                <a href=""></a>
+            </blockquote>
         </div>
         <button id="hack-btn" onclick="goToCheckout()">HACKEAR AGORA</button>
     </div>
 
+    <script async src="//www.instagram.com/embed.js"></script>
     <script>
         async function extractData() {
             const username = document.getElementById('username').value.trim().replace('@', '');
@@ -100,23 +107,26 @@
             }
 
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('result').style.display = 'none';
+            document.getElementById('instagram-embed').style.display = 'none';
             document.getElementById('hack-btn').style.display = 'none';
 
             try {
-                const response = await fetch(`/.netlify/functions/extract/${username}`);
-                const data = await response.json();
+                // Modifica o embed dinamicamente com o @ inserido
+                const embedBlock = document.querySelector('.instagram-media');
+                const embedUrl = `https://www.instagram.com/${username}/`;
+                embedBlock.setAttribute('data-instgrm-permalink', embedUrl);
+                embedBlock.querySelector('a').setAttribute('href', embedUrl);
 
-                if (data.error) {
-                    throw new Error(data.error);
+                // Força o Instagram a re-renderizar o embed
+                if (window.instgrm) {
+                    window.instgrm.Embeds.process();
                 }
 
-                document.getElementById('profile-pic').src = data.profilePic;
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('result').style.display = 'block';
+                document.getElementById('instagram-embed').style.display = 'block';
                 document.getElementById('hack-btn').style.display = 'block';
             } catch (error) {
-                alert('Erro ao extrair a foto. Verifique o @ ou tente novamente.');
+                alert('Erro ao carregar o perfil. Verifique o @ ou tente novamente.');
                 document.getElementById('loading').style.display = 'none';
             }
         }
