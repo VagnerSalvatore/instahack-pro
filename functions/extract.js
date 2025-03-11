@@ -5,8 +5,9 @@ exports.handler = async (event, context) => {
 
     try {
         const options = {
-            count: 0, // Não precisamos de posts, apenas metadados do usuário
-            timeout: 1000 // Adiciona um delay para evitar rate limits
+            count: 0,
+            timeout: 1000,
+            proxy: 'http://51.15.242.202:8888' // Proxy gratuito (pode falhar)
         };
         const userMeta = await instaTouch.getUserMeta(username, options);
         const profilePic = userMeta.profile_pic_url || 'https://placehold.co/120x120?text=Sem+Foto';
@@ -19,8 +20,9 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error(error);
         return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Erro ao extrair a foto. Verifique o @ ou tente novamente.' })
+            statusCode: 200,
+            body: JSON.stringify({ profilePic: 'https://placehold.co/120x120?text=Sem+Foto' }),
+            headers: { 'Content-Type': 'application/json' }
         };
     }
 };
