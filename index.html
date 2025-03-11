@@ -56,27 +56,21 @@
             color: #00ff00;
             margin: 20px 0;
         }
-        #result {
+        #instagram-embed {
             display: none;
+            margin-top: 20px;
             background-color: #1a1a1a;
             padding: 20px;
-            margin-top: 20px;
             border: 2px solid #00ff00;
             border-radius: 5px;
-        }
-        #result img {
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            border: 2px solid #ff0000;
         }
         #hack-btn {
             margin-top: 20px;
             display: none;
         }
-        #instagram-embed {
-            display: none;
-            margin-top: 20px;
+        .instagram-media {
+            max-width: 120px !important;
+            min-width: 120px !important;
         }
     </style>
 </head>
@@ -89,11 +83,7 @@
             <br><button onclick="extractData()" style="margin-top: 20px;">HACKEAR AGORA</button>
         </div>
         <div id="loading">Carregando perfil... Aguarde.</div>
-        <div id="instagram-embed">
-            <blockquote class="instagram-media" data-instgrm-permalink="" data-instgrm-version="14">
-                <a href=""></a>
-            </blockquote>
-        </div>
+        <div id="instagram-embed"></div>
         <button id="hack-btn" onclick="goToCheckout()">HACKEAR AGORA</button>
     </div>
 
@@ -111,20 +101,30 @@
             document.getElementById('hack-btn').style.display = 'none';
 
             try {
-                // Modifica o embed dinamicamente com o @ inserido
-                const embedBlock = document.querySelector('.instagram-media');
-                const embedUrl = `https://www.instagram.com/${username}/`;
-                embedBlock.setAttribute('data-instgrm-permalink', embedUrl);
-                embedBlock.querySelector('a').setAttribute('href', embedUrl);
+                // Remove qualquer embed anterior
+                const embedContainer = document.getElementById('instagram-embed');
+                embedContainer.innerHTML = '';
 
-                // Força o Instagram a re-renderizar o embed
+                // Insere o novo embed dinamicamente
+                const embedUrl = `https://www.instagram.com/${username}/`;
+                const embedCode = `
+                    <blockquote class="instagram-media" data-instgrm-permalink="${embedUrl}" data-instgrm-version="14">
+                        <a href="${embedUrl}"></a>
+                    </blockquote>
+                `;
+                embedContainer.innerHTML = embedCode;
+
+                // Processa o embed com o script do Instagram
                 if (window.instgrm) {
                     window.instgrm.Embeds.process();
                 }
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('instagram-embed').style.display = 'block';
-                document.getElementById('hack-btn').style.display = 'block';
+                // Aguarda o carregamento (simulado com timeout)
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('instagram-embed').style.display = 'block';
+                    document.getElementById('hack-btn').style.display = 'block';
+                }, 1000);
             } catch (error) {
                 alert('Erro ao carregar o perfil. Verifique o @ ou tente novamente.');
                 document.getElementById('loading').style.display = 'none';
