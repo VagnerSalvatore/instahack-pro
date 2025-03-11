@@ -1,38 +1,30 @@
 const axios = require('axios');
+const cheerio = require('cheerio');
 
 exports.handler = async (event, context) => {
     const username = event.path.split('/').pop();
 
     try {
-        const url = `https://www.instagram.com/${username}/?__a=1`;
+        const url = `https://www.instagram.com/${username}/`;
         const response = await axios.get(url, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Referer': 'https://www.instagram.com/'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
         });
 
-        const data = response.data.graphql.user;
-        const extractedData = {
-            profilePic: data.profile_pic_url,
-            name: data.full_name || username,
-            birthdate: 'Indisponível',
-            city: data.location || 'Indisponível',
-            bio: data.biography || 'Sem bio'
-        };
+        const $ = cheerio.load(response.data);
+        const profilePic = $('meta[property="og:image"]').attr('content') || 'https://via.placeholder.com/120';
 
         return {
             statusCode: 200,
-            body: JSON.stringify(extractedData),
+            body: JSON.stringify({ profilePic }),
             headers: { 'Content-Type': 'application/json' }
         };
     } catch (error) {
-        console.error(error.response ? error.response.status : error.message);
+        console.error(error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Erro ao extrair dados. Verifique o @ ou tente novamente.' })
+            body: JSON.stringify({ error: 'Erro ao extrair a foto. Verifique o @ ou tente novamente.' })
         };
     }
 };
