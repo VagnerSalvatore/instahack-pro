@@ -13,7 +13,11 @@ exports.handler = async (event, context) => {
         });
 
         const $ = cheerio.load(response.data);
-        const profilePic = $('meta[property="og:image"]').attr('content') || 'https://via.placeholder.com/120';
+        const profilePic = $('meta[property="og:image"]').attr('content');
+
+        if (!profilePic) {
+            throw new Error('Foto de perfil não encontrada');
+        }
 
         return {
             statusCode: 200,
@@ -22,9 +26,12 @@ exports.handler = async (event, context) => {
         };
     } catch (error) {
         console.error(error);
+        // Fallback para uma URL confiável do Placeholder.com
+        const fallbackPic = 'https://placehold.co/120x120?text=Sem+Foto';
         return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Erro ao extrair a foto. Verifique o @ ou tente novamente.' })
+            statusCode: 200, // Retorna 200 mesmo com erro para evitar falha visível
+            body: JSON.stringify({ profilePic: fallbackPic }),
+            headers: { 'Content-Type': 'application/json' }
         };
     }
 };
